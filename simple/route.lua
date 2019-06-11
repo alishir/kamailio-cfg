@@ -54,6 +54,7 @@ function ksr_request_route()
 	if KSR.tm.t_check_trans()==0 then return 1 end
 
 	-- authentication
+	KSR.info("here 1\n");
 	ksr_route_auth();
 
 	-- record routing for dialog forming requests (in case they are routed)
@@ -63,14 +64,19 @@ function ksr_request_route()
 	if KSR.is_method_in("IS") then
 		KSR.rr.record_route();
 	end
+	KSR.info("here 2\n");
 
 	-- account only INVITEs
 	if KSR.is_INVITE() then
 		KSR.setflag(FLT_ACC); -- do accounting
 	end
+	KSR.info("here 3\n");
 
 	-- dispatch requests to foreign domains
+	--[[
 	ksr_route_sipout();
+	KSR.info("here 4\n");
+	]]
 
 	-- -- requests for my local domains
 
@@ -93,6 +99,7 @@ end
 function ksr_route_relay()
 	-- enable additional event routes for forwarded requests
 	-- - serial forking, RTP relaying handling, a.s.o.
+	KSR.info("route relay\n");
 	if KSR.is_method_in("IBSU") then
 		if KSR.tm.t_is_set("branch_route")<0 then
 			KSR.tm.t_on_branch("ksr_branch_manage");
@@ -111,6 +118,7 @@ function ksr_route_relay()
 	end
 
 	if KSR.tm.t_relay()<0 then
+		KSR.info("route relay error\n");
 		KSR.sl.sl_reply_error();
 	end
 	KSR.x.exit();
@@ -125,13 +133,6 @@ function ksr_route_reqinit()
 			KSR.dbg("request from blocked IP - " .. KSR.pv.get("$rm")
 					.. " from " .. KSR.pv.get("$fu") .. " (IP:"
 					.. KSR.pv.get("$si") .. ":" .. KSR.pv.get("$sp") .. ")\n");
-			KSR.x.exit();
-		end
-		if KSR.pike.pike_check_req()<0 then
-			KSR.err("ALERT: pike blocking " .. KSR.pv.get("$rm")
-					.. " from " .. KSR.pv.get("$fu") .. " (IP:"
-					.. KSR.pv.get("$si") .. ":" .. KSR.pv.get("$sp") .. ")\n");
-			KSR.pv.seti("$sht(ipban=>$si)", 1);
 			KSR.x.exit();
 		end
 	end
@@ -204,6 +205,7 @@ end
 
 -- Handle SIP registrations
 function ksr_route_registrar()
+	KSR.info("===== Handling registeration\n");
 	if not KSR.is_REGISTER() then return 1; end
 	if KSR.isflagset(FLT_NATS) then
 		KSR.setbflag(FLB_NATB);
@@ -242,7 +244,7 @@ end
 
 -- IP authorization and user uthentication
 function ksr_route_auth()
-
+	KSR.info("===== Rout auth block\n");
 	if not KSR.is_REGISTER() then
 		if KSR.permissions.allow_source_address(1)>0 then
 			-- source IP allowed
@@ -269,6 +271,7 @@ function ksr_route_auth()
 		KSR.sl.sl_send_reply(403,"Not relaying");
 		KSR.x.exit();
 	end
+	KSR.info("===== Rout auth end block\n");
 
 	return 1;
 end
@@ -276,14 +279,6 @@ end
 -- Caller NAT detection
 function ksr_route_natdetect()
 	KSR.force_rport();
-	if KSR.nathelper.nat_uac_test(19)>0 then
-		if KSR.is_REGISTER() then
-			KSR.nathelper.fix_nated_register();
-		elseif KSR.siputils.is_first_hop()>0 then
-			KSR.nathelper.set_contact_alias();
-		end
-		KSR.setflag(FLT_NATS);
-	end
 	return 1;
 end
 
@@ -327,10 +322,13 @@ end
 
 -- Routing to foreign domains
 function ksr_route_sipout()
+	KSR.info("route out\n");
 	if KSR.is_myself_ruri() then return 1; end
+	KSR.info("route out 1\n");
 
 	KSR.hdr.append("P-Hint: outbound\r\n");
 	ksr_route_relay();
+	KSR.info("route out 2\n");
 	KSR.x.exit();
 end
 

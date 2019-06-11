@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-CFGFILE=/home/ali/kamailio-cfg/kamailio.cfg
+SPATH=`realpath $0`
+CDIR=`dirname $SPATH`
+CFGFILE=$CDIR/kamailio.cfg
 SHM_MEMORY=8
 PKG_MEMORY=8
 USER=kamailio
