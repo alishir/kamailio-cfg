@@ -5,7 +5,7 @@
 # will use their internal default values.
 
 ## your SIP domain
-SIP_DOMAIN=127.0.0.1
+SIP_DOMAIN=192.168.1.21
 
 ## chrooted directory
 # $CHROOT_DIR="/path/to/chrooted/directory"
@@ -30,16 +30,16 @@ DBNAME=kamailio_simple_db
 # DB_PATH="/usr/local/etc/kamailio/dbtext"
 
 ## database read/write user
-DBRWUSER="kamailio_simple_u"
+DBRWUSER="kamailio_u"
 
 ## password for database read/write user
-DBRWPW="kamailiorw_simple_p"
+DBRWPW="kamailiorw_p"
 
 ## database read only user
-DBROUSER="kamailioro_simple_u"
+DBROUSER="kamailioro_u"
 
 ## password for database read only user
-DBROPW="kamailioro_simple_p"
+DBROPW="kamailioro_p"
 
 ## database access host (from where is kamctl used)
 # DBACCESSHOST=192.168.0.1
@@ -54,7 +54,7 @@ DBROOTUSER="root"
 # DBROOTPW="dbrootpw"
 
 ## database character set (used by MySQL when creating database)
-#CHARSET="latin1"
+CHARSET="utf32"
 
 ## user name column
 # USERCOL="username"

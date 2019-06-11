@@ -25,7 +25,6 @@ FLB_NATSIPPING=7
 -- SIP request routing
 -- equivalent of request_route{}
 function ksr_request_route()
-
 	KSR.info("===== new request - from kamailio lua script\n");
 	-- per request initial checks
 	ksr_route_reqinit();
@@ -54,7 +53,6 @@ function ksr_request_route()
 	if KSR.tm.t_check_trans()==0 then return 1 end
 
 	-- authentication
-	KSR.info("here 1\n");
 	ksr_route_auth();
 
 	-- record routing for dialog forming requests (in case they are routed)
@@ -64,19 +62,14 @@ function ksr_request_route()
 	if KSR.is_method_in("IS") then
 		KSR.rr.record_route();
 	end
-	KSR.info("here 2\n");
 
 	-- account only INVITEs
 	if KSR.is_INVITE() then
 		KSR.setflag(FLT_ACC); -- do accounting
 	end
-	KSR.info("here 3\n");
 
 	-- dispatch requests to foreign domains
-	--[[
 	ksr_route_sipout();
-	KSR.info("here 4\n");
-	]]
 
 	-- -- requests for my local domains
 
@@ -99,7 +92,6 @@ end
 function ksr_route_relay()
 	-- enable additional event routes for forwarded requests
 	-- - serial forking, RTP relaying handling, a.s.o.
-	KSR.info("route relay\n");
 	if KSR.is_method_in("IBSU") then
 		if KSR.tm.t_is_set("branch_route")<0 then
 			KSR.tm.t_on_branch("ksr_branch_manage");
@@ -118,7 +110,6 @@ function ksr_route_relay()
 	end
 
 	if KSR.tm.t_relay()<0 then
-		KSR.info("route relay error\n");
 		KSR.sl.sl_reply_error();
 	end
 	KSR.x.exit();
@@ -244,7 +235,6 @@ end
 
 -- IP authorization and user uthentication
 function ksr_route_auth()
-	KSR.info("===== Rout auth block\n");
 	if not KSR.is_REGISTER() then
 		if KSR.permissions.allow_source_address(1)>0 then
 			-- source IP allowed
@@ -271,7 +261,6 @@ function ksr_route_auth()
 		KSR.sl.sl_send_reply(403,"Not relaying");
 		KSR.x.exit();
 	end
-	KSR.info("===== Rout auth end block\n");
 
 	return 1;
 end
@@ -322,13 +311,11 @@ end
 
 -- Routing to foreign domains
 function ksr_route_sipout()
-	KSR.info("route out\n");
+	KSR.info("ruri is: " .. KSR.pv.get("$ru") .. "\n");
 	if KSR.is_myself_ruri() then return 1; end
-	KSR.info("route out 1\n");
 
 	KSR.hdr.append("P-Hint: outbound\r\n");
 	ksr_route_relay();
-	KSR.info("route out 2\n");
 	KSR.x.exit();
 end
 
