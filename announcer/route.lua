@@ -96,15 +96,19 @@ function ksr_route_announcer()
 	KSR.info("username is: " .. u .. "\n");
 	if u == "ann" then
 		KSR.info("announcer has been called.\n");
-		KSR.tm.t_newtran();
-		KSR.rtpengine.rtpengine_manage0();
-		KSR.tm.t_reply(200, "OK");
-		KSR.x.exit();
+		if KSR.textops.has_body_type("application/sdp") then
+			KSR.info("request contains SDP.\n");
+			KSR.tm.t_newtran();
+			KSR.rtpengine.rtpengine_manage0();
+			KSR.tm.t_reply(200, "OK");
+			KSR.x.exit();
+		end
 	end
 end
 
 -- wrapper around tm relay function
 function ksr_route_relay()
+	KSR.info("==== route relay ====\n");
 	-- enable additional event routes for forwarded requests
 	-- - serial forking, RTP relaying handling, a.s.o.
 	if KSR.is_method_in("IBSU") then
